@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +57,26 @@ public class UserService {
 			
 		} catch (Exception e) {
 		}
+		return "file upload";
+	}
+
+	public String uploadEXCEL(MultipartFile file) {
+		try {
+			InputStream is=file.getInputStream();
+			XSSFWorkbook book=new XSSFWorkbook(is);
+			XSSFSheet sheet=book.getSheet("user");
+			for (Row row : sheet) {
+				UserDetails user=new UserDetails();
+				user.setUsername(row.getCell(0).getStringCellValue());
+				user.setPassword(row.getCell(1).getStringCellValue());
+				user.setEmail(row.getCell(2).getStringCellValue());
+				userRepository.save(user);
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 		return "file upload";
 	}
 }
